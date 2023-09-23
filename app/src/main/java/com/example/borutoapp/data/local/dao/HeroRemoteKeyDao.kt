@@ -1,4 +1,4 @@
-package com.example.borutoapp.data.dao
+package com.example.borutoapp.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete

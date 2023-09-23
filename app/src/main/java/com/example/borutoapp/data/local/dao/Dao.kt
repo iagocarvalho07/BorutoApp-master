@@ -1,4 +1,4 @@
-package com.example.borutoapp.data.dao
+package com.example.borutoapp.data.local.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao

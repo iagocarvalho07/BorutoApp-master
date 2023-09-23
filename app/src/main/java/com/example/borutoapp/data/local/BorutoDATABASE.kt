@@ -3,9 +3,8 @@ package com.example.borutoapp.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.borutoapp.data.dao.DataBaseConverter
-import com.example.borutoapp.data.dao.HeroDao
-import com.example.borutoapp.data.dao.HeroRemoteKeyDao
+import com.example.borutoapp.data.local.dao.HeroDao
+import com.example.borutoapp.data.local.dao.HeroRemoteKeyDao
 import com.example.borutoapp.domain.module.Hero
 import com.example.borutoapp.domain.module.HeroRepoteKEY
 

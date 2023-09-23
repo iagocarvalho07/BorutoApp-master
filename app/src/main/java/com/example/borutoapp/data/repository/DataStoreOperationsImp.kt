@@ -1,4 +1,4 @@
-package com.example.borutoapp.domain.repository
+package com.example.borutoapp.data.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore

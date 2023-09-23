@@ -22,9 +22,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.borutoapp.R
 import com.example.borutoapp.domain.module.OnBordingPage
+import com.example.borutoapp.navigation.Screen
 import com.example.borutoapp.ui.theme.EXTRA_LARGE_PADDING
 import com.example.borutoapp.ui.theme.PAGING_INDICATOR_SPACING
 import com.example.borutoapp.ui.theme.PAGING_INDICATOR_WIDTH
@@ -42,10 +44,11 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @ExperimentalPagerApi
 @Composable
-fun WelcomeScreen(navController: NavController) {
+fun WelcomeScreen(navController: NavController, viewModel: WelcomeViewModel = hiltViewModel()) {
     val pages = listOf(OnBordingPage.First, OnBordingPage.Second, OnBordingPage.Third)
 
     val pagerState = rememberPagerState()
@@ -73,7 +76,9 @@ fun WelcomeScreen(navController: NavController) {
             spacing = PAGING_INDICATOR_SPACING
         )
         FinishButton(modifier = Modifier.weight(1f), pagerState = pagerState) {
-
+            navController.popBackStack()
+            navController.navigate(Screen.Home.route)
+            viewModel.saveOnBordingState(complete = true)
         }
     }
 }

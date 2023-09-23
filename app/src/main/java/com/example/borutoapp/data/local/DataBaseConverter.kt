@@ -1,4 +1,4 @@
-package com.example.borutoapp.data.dao
+package com.example.borutoapp.data.local
 
 import androidx.room.TypeConverter
 

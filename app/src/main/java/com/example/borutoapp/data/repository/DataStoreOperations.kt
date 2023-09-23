@@ -1,4 +1,4 @@
-package com.example.borutoapp.domain.repository
+package com.example.borutoapp.data.repository
 
 import kotlinx.coroutines.flow.Flow
 
