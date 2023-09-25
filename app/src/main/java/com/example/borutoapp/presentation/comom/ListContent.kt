@@ -1,15 +1,20 @@
 package com.example.borutoapp.presentation.comom
 
 import RatingWidget
+import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
@@ -28,6 +33,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.items
 import coil.compose.AsyncImage
 import com.example.borutoapp.R
 import com.example.borutoapp.domain.module.Hero
@@ -38,12 +44,27 @@ import com.example.borutoapp.ui.theme.MEDIUM_PADDING
 import com.example.borutoapp.ui.theme.SMALL_PADDING
 import com.example.borutoapp.ui.theme.Shapes
 import com.example.borutoapp.ui.theme.topAppBarContentColor
+import kotlin.math.log
 
 @Composable
 fun ListContent(
     heros: LazyPagingItems<Hero>,
-    navController: NavController
+    navController: NavHostController
 ) {
+    Log.d("chamandoAPI", "ListContent: ${heros.loadState.toString()}")
+    LazyColumn(contentPadding = PaddingValues(all = SMALL_PADDING), verticalArrangement = Arrangement.spacedBy(SMALL_PADDING)) {
+        items(items = heros,
+            key = { hero ->
+                hero.id
+            }
+        ) { hero ->
+            hero?.let {
+                Log.d("IMAGEFROMAPI", "ListContent: ${it.image}")
+                HeroItem(hero = it, navController = navController)
+            }
+
+        }
+    }
 
 
 }
@@ -51,11 +72,11 @@ fun ListContent(
 @Composable
 fun HeroItem(hero: Hero, navController: NavHostController) {
 
-    val image = if (hero.image.isEmpty()) {
-        R.drawable.ic_placeholder
-    } else {
-        hero.image
-    }
+//    val image = if (hero.image.isEmpty()) {
+//        R.drawable.ic_placeholder
+//    } else {
+//        hero.image
+//    }
     Box(
         modifier = Modifier
             .height(HERO_ITEM_HEIGHT)
@@ -65,7 +86,7 @@ fun HeroItem(hero: Hero, navController: NavHostController) {
         Surface(shape = Shapes.large) {
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),
-                model = image, contentDescription = "", contentScale = ContentScale.Crop
+                model = hero.image, contentDescription = "", contentScale = ContentScale.Crop
             )
         }
         Surface(
@@ -116,6 +137,35 @@ fun HeroItem(hero: Hero, navController: NavHostController) {
 @Preview
 @Composable
 fun HeroItemPreview() {
+    HeroItem(
+        hero = Hero(
+            id = 15,
+            name = "Koji",
+            image = "",
+            about = "Koji Kashin (果心居士, Kashin Koji) is a clone of Jiraiya that was created by Amado for the purpose of killing Isshiki Ōtsutsuki. A former Inner of Kara, he was in charge of the sector on the outskirts of the Land of Fire. An enigmatic man, Koji has a very stoic and straightforward nature that follows a no-nonsense view. Arrogant as he may appear, he has consistently shown himself to be a very rational and perceptive man.",
+            rating = 4.5,
+            power = 90,
+            month = "Jan",
+            day = "1st",
+            family = listOf(
+                "Jiraiya"
+            ),
+            abilities = listOf(
+                "Senin Mode",
+                "Rasengan",
+                "Shadow Clone"
+            ),
+            natureTypes = listOf(
+                "Fire",
+                "Earth"
+            )
+        ), navController = rememberNavController()
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun HeroItemDarkPreview() {
     HeroItem(
         hero = Hero(
             id = 15,

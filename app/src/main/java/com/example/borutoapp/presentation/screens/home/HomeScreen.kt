@@ -6,17 +6,17 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.borutoapp.presentation.comom.ListContent
 
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
+fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: NavHostController) {
 
     val allHeros = homeViewModel.getAllHeros.collectAsLazyPagingItems()
-
     Scaffold(topBar = { HomeTopBar(onSearcheClickd = {}) }) { innerpading ->
         Box(modifier = Modifier.padding(innerpading)) {
+
             ListContent(heros = allHeros, navController = navController)
         }
 
