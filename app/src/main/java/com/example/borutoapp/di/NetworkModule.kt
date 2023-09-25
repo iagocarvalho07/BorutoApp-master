@@ -1,6 +1,10 @@
 package com.example.borutoapp.di
 
+import androidx.paging.ExperimentalPagingApi
+import com.example.borutoapp.data.local.BorutoDATABASE
 import com.example.borutoapp.data.remote.BorutoApi
+import com.example.borutoapp.domain.repository.RemoteDataSorceImpl
+import com.example.borutoapp.domain.repository.RemoteDataSource
 import com.example.borutoapp.util.Constants.BASE_URL
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -15,13 +19,14 @@ import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
+@ExperimentalPagingApi
 @ExperimentalSerializationApi
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideHTPPClipet(): OkHttpClient{
+    fun provideHTPPClipet(): OkHttpClient {
         return OkHttpClient.Builder()
             .readTimeout(15, TimeUnit.MINUTES)
             .connectTimeout(15, TimeUnit.MINUTES)
@@ -42,7 +47,16 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun BorutoApi(retrofit: Retrofit): BorutoApi{
+    fun BorutoApi(retrofit: Retrofit): BorutoApi {
         return retrofit.create(BorutoApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRemoteDataSorce(
+        borutoApi: BorutoApi,
+        borutoDATABASE: BorutoDATABASE
+    ): RemoteDataSource {
+        return RemoteDataSorceImpl(borutoApi = borutoApi, borutoDATABASE = borutoDATABASE)
     }
 }
