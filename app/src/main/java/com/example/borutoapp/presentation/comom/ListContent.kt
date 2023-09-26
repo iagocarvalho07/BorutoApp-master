@@ -25,68 +25,101 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.items
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.borutoapp.R
 import com.example.borutoapp.domain.module.Hero
 import com.example.borutoapp.navigation.Screen
+import com.example.borutoapp.presentation.components.ShimmerAffect
 import com.example.borutoapp.ui.theme.HERO_ITEM_HEIGHT
 import com.example.borutoapp.ui.theme.LARGE_PADDING
 import com.example.borutoapp.ui.theme.MEDIUM_PADDING
 import com.example.borutoapp.ui.theme.SMALL_PADDING
 import com.example.borutoapp.ui.theme.Shapes
 import com.example.borutoapp.ui.theme.topAppBarContentColor
-import kotlin.math.log
+import com.example.borutoapp.util.Constants.BASE_URL
 
 @Composable
 fun ListContent(
     heros: LazyPagingItems<Hero>,
     navController: NavHostController
 ) {
-    Log.d("chamandoAPI", "ListContent: ${heros.loadState.toString()}")
-    LazyColumn(contentPadding = PaddingValues(all = SMALL_PADDING), verticalArrangement = Arrangement.spacedBy(SMALL_PADDING)) {
-        items(items = heros,
-            key = { hero ->
-                hero.id
-            }
-        ) { hero ->
-            hero?.let {
-                Log.d("IMAGEFROMAPI", "ListContent: ${it.image}")
-                HeroItem(hero = it, navController = navController)
-            }
+    val result = handlePagingResult(heroes = heros)
 
+    if (result) {
+        LazyColumn(contentPadding = PaddingValues(all = SMALL_PADDING), verticalArrangement = Arrangement.spacedBy(SMALL_PADDING)) {
+            items(items = heros,
+                key = { hero ->
+                    hero.id
+                }
+            ) { hero ->
+                hero?.let {
+                    HeroItem(hero = it, navController = navController)
+                }
+            }
         }
     }
-
-
 }
+
+
+@Composable
+fun handlePagingResult(
+    heroes: LazyPagingItems<Hero>
+): Boolean {
+    heroes.apply {
+        val error = when {
+            loadState.refresh is LoadState.Error -> loadState.refresh as LoadState.Error
+            loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
+            loadState.append is LoadState.Error -> loadState.append as LoadState.Error
+            else -> null
+        }
+
+        return when {
+            loadState.refresh is LoadState.Loading -> {
+                ShimmerAffect()
+                false
+            }
+
+            error != null -> {
+                EmptyScreen(error = error)
+                false
+            }
+
+            else -> true
+        }
+    }
+}
+
 
 @Composable
 fun HeroItem(hero: Hero, navController: NavHostController) {
-
-//    val image = if (hero.image.isEmpty()) {
-//        R.drawable.ic_placeholder
-//    } else {
-//        hero.image
-//    }
     Box(
         modifier = Modifier
             .height(HERO_ITEM_HEIGHT)
             .clickable { navController.navigate(Screen.Details.passHeroId(heroId = hero.id)) },
         contentAlignment = Alignment.BottomStart
     ) {
-        Surface(shape = Shapes.large) {
+        Surface(shape = RoundedCornerShape(size = LARGE_PADDING)) {
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),
-                model = hero.image, contentDescription = "", contentScale = ContentScale.Crop
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(data = "$BASE_URL${hero.image}")
+                    .placeholder(drawableResId = R.drawable.ic_placeholder)
+                    .error(drawableResId = R.drawable.ic_placeholder)
+                    .build(),
+                contentDescription = stringResource(id = R.string.hero_image),
+                contentScale = ContentScale.Crop
             )
         }
         Surface(

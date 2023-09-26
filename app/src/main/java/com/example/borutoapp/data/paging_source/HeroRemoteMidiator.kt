@@ -9,6 +9,9 @@ import com.example.borutoapp.data.local.BorutoDATABASE
 import com.example.borutoapp.data.remote.BorutoApi
 import com.example.borutoapp.domain.module.Hero
 import com.example.borutoapp.domain.module.HeroRepoteKEY
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @ExperimentalPagingApi
@@ -19,6 +22,19 @@ class HeroRemoteMidiator @Inject constructor(
 
     private val heroDao = borutoDATABASE.HeroDao()
     private val remoteKeyDao = borutoDATABASE.HeroRemoteKeyDao()
+
+    override suspend fun initialize(): InitializeAction {
+        val currentTime = System.currentTimeMillis()
+        val lastUpdated = remoteKeyDao.getRemoteKey(id = 1)?.lastUpdated ?: 0L
+        val cacheTimeout = 1440
+
+        val diffInMinutes = (currentTime - lastUpdated) / 1000 / 60
+        return if (diffInMinutes.toInt() <= cacheTimeout) {
+            InitializeAction.SKIP_INITIAL_REFRESH
+        } else {
+            InitializeAction.LAUNCH_INITIAL_REFRESH
+        }
+    }
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Hero>): MediatorResult {
         return try {
@@ -58,6 +74,7 @@ class HeroRemoteMidiator @Inject constructor(
                             id = hero.id,
                             prepage = prevPage,
                             nextpage = nextPage,
+                            lastUpdated = response.lastUpdated
                         )
                     }
                     remoteKeyDao.AddAllRemoteKey(heroRepoteKEY = keys)
@@ -96,5 +113,11 @@ class HeroRemoteMidiator @Inject constructor(
             ?.let { hero ->
                 remoteKeyDao.getRemoteKey(id = hero.id)
             }
+    }
+
+        private fun parseMillis(millis: Long): String {
+        val date = Date(millis)
+        val format = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.ROOT)
+        return format.format(date)
     }
 }

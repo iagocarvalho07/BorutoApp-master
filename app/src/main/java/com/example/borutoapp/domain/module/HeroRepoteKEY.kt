@@ -10,4 +10,6 @@ data class HeroRepoteKEY(
     val id: Int,
     val prepage: Int?,
     val nextpage: Int?,
+    val lastUpdated: Long?
+
 )
